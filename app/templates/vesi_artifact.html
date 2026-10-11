@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ artifact.name }} — Города и веси{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/vesi.css">
+{% endblock %}
+{% block body %}
+<p><a href="/vesi?at={{ artifact.id }}">К карте</a></p>
+<h1>{% if artifact.get("kind") == "parish" and artifact.get("url") %}<a href="{{ artifact.url }}" rel="noopener noreferrer">{{ artifact.name }}</a>{% else %}{{ artifact.name }}{% endif %}</h1>
+{% if artifact.get("kind") == "parish" %}
+<p class="vesi-kind"><span aria-hidden="true">⛪</span><span>парафия</span></p>
+{% endif %}
+<p class="status">
+  <span class="status-mark" aria-hidden="true">{{ artifact.emoji }}</span>
+  <span>{{ artifact.label }}</span>
+</p>
+{% if artifact.settlement_name and artifact.settlement_name != artifact.name %}
+<p>Населённый пункт: {{ artifact.settlement_name }}</p>
+{% endif %}
+{% if artifact.get("kind") == "parish" %}
+{% include "partials/vesi_parish.html" %}
+{% elif artifact.indexed %}
+<p><a href="/mogilki?cemetery={{ artifact.name | urlencode }}">Поиск по этому кладбищу в Могілкі</a></p>
+{% if artifact.surnames %}
+<h2>Фамилии</h2>
+<p>В списке {{ artifact.surnames|length }}.</p>
+<ul class="vesi-surnames">
+  {% for name in artifact.surnames %}
+  <li>{{ name }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Списка фамилий пока нет.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

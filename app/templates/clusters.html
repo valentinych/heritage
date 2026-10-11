@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Кластеры — Наследие{% endblock %}
+{% block body %}
+<h1>Кластеры</h1>
+<p class="help">Схема сверху вниз: тестируемый, затем общий предок, кластер и люди. Если в выгрузке есть матрица AutoClusters, в одну ветвь попадают кластеры с треугольником совпадений. Свой предок также есть у кластера, где совпадают все пары, и у пары с общей основой фамилии. Одиночная связь между кластерами ветви не сливает. На узком экране схему двигают вбок.</p>
+<p class="help">Если человека ещё нет в кластерах, оставьте список пустым и впишите другое имя.</p>
+<form method="post" action="/s/{{ space.id }}/clusters" enctype="multipart/form-data" class="card stack">
+  <div class="row-form">
+    <label class="field">Чьи кластеры
+      <select name="owner">
+        <option value="">Нет в списке</option>
+        {% for person in cluster_people %}
+        <option value="{{ person }}">{{ person }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">Другое имя
+      <input type="text" name="owner_other" maxlength="255" autocomplete="name">
+    </label>
+    <label class="field">Файл CSV, Excel или HTML
+      <input type="file" name="file" accept=".csv,.xlsx,.tsv,.txt,.html,.htm" required>
+    </label>
+  </div>
+  <p class="help">HTML AutoClusters сразу открывает матрицу. Для обычной таблицы потом нужно выбрать столбцы.</p>
+  <button class="button-primary" type="submit">Загрузить таблицу</button>
+</form>
+<form method="post" action="/s/{{ space.id }}/clusters/self" class="card stack">
+  <label class="field">Указать себя
+    <select name="name"{% if owners %} required{% endif %}>
+      {% for owner in owners %}
+      <option value="{{ owner }}"{% if owner == self_name %} selected{% endif %}>{{ owner }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% if not owners %}
+  <p class="help">Сначала укажите владельца при загрузке.</p>
+  {% endif %}
+  {% if owners %}
+  <button class="button-primary" type="submit">Сохранить</button>
+  {% endif %}
+</form>
+{% if self_name %}
+<p>Сейчас вы: {{ self_name }}.</p>
+{% endif %}
+{% if self_name and not self_known %}
+<p>Этого владельца больше нет.</p>
+{% endif %}
+{% if self_scheme %}
+<h2>Со своей стороны</h2>
+{% with scheme=self_scheme, scheme_label="Схема кластеров от вас. Прокрутка по горизонтали." %}
+{% include "partials/scheme.html" %}
+{% endwith %}
+{% endif %}
+{% for block in separate_blocks %}
+<h2>Кластеры {{ block.owner }}</h2>
+{% with scheme=block.scheme, scheme_label="Кластеры " ~ block.owner ~ ". Прокрутка по горизонтали." %}
+{% include "partials/scheme.html" %}
+{% endwith %}
+{% endfor %}
+{% if datasets %}
+  {% for dataset in datasets %}
+  {% include "partials/dataset_card.html" %}
+  {% if dataset.id in matrix_ids %}
+  <p><a href="/s/{{ space.id }}/clusters/{{ dataset.id }}/matrix">Матрица совпадений</a></p>
+  {% endif %}
+  {% if not self_known and dataset.status == 'ready' %}
+    {% if dataset.id in trees %}
+    {% set tree = trees[dataset.id] %}
+    {% with scheme=trees[dataset.id], scheme_label="Схема кластеров. Прокрутка по горизонтали." %}
+    {% include "partials/scheme.html" %}
+    {% endwith %}
+    {% else %}
+    <p>В этой таблице нет кластеров.</p>
+    {% endif %}
+  {% endif %}
+  {% endfor %}
+{% else %}
+<p>Пока нет кластеров. Загрузите CSV или Excel со списком кластеров.</p>
+{% endif %}
+{% endblock %}

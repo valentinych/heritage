@@ -1,0 +1,141 @@
+.vesi-map {
+  height: min(62vh, 640px);
+  min-height: 280px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.vesi-find {
+  max-width: 28rem;
+}
+
+.vesi-results,
+.vesi-artifacts,
+.vesi-surnames {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vesi-hit {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.vesi-results li + li,
+.vesi-artifacts li + li {
+  margin-top: 8px;
+}
+
+.vesi-artifact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.vesi-artifact-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.vesi-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--muted);
+}
+
+.vesi-rite,
+.vesi-note,
+.vesi-coverage {
+  color: var(--muted);
+}
+
+.vesi-note {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
+.vesi-coverage {
+  flex: 1 0 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vesi-bind {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px 12px;
+}
+
+.vesi-bind .field {
+  flex: 1 1 16rem;
+  max-width: 28rem;
+  margin: 0;
+}
+
+.vesi-unbound .help {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vesi-surnames li {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.leaflet-div-icon.vesi-dot-wrap {
+  background: transparent;
+  border: 0;
+}
+
+.vesi-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: 10px;
+  border-radius: 50%;
+  background: #0f766e;
+  box-shadow: 0 0 0 2px #fff, 0 1px 2px oklch(0.2 0.02 70 / 0.45);
+}
+
+.vesi-dot-red {
+  background: #b91c1c;
+}
+
+.vesi-dot-yellow {
+  background: #ca8a04;
+}
+
+.vesi-dot-green {
+  background: #15803d;
+}
+
+.vesi-cluster {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 4px;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #fff;
+  font: 600 0.8rem/1 var(--font);
+  box-shadow: 0 0 0 2px #fff, 0 1px 3px oklch(0.2 0.02 70 / 0.4);
+}

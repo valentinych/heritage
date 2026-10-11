@@ -1,0 +1,37 @@
+{% if artifact.rite %}
+<span class="vesi-rite">обряд {{ artifact.rite }}</span>
+{% endif %}
+{% if artifact.church %}
+<p class="vesi-note">{{ artifact.church }}</p>
+{% endif %}
+{% if artifact.place_type or artifact.place %}
+<p class="vesi-note">{% if artifact.place_type %}{{ artifact.place_type }} {% endif %}{{ artifact.place }}</p>
+{% endif %}
+{% if artifact.atd %}
+<p class="vesi-note">{{ artifact.atd | join(', ') }}</p>
+{% endif %}
+{% if artifact.served %}
+<p class="vesi-note">Населённые пункты</p>
+<ul class="vesi-coverage">
+  {% for name in artifact.served %}
+  <li>{{ name }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% if artifact.coverage %}
+<ul class="vesi-coverage">
+  {% for act in artifact.coverage %}
+  <li>{{ act.label }}{% if act.years %}, {{ act.years }}{% endif %}{% if act.records is not none and act.records != "" %}, записей {{ act.records }}{% endif %}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% if artifact.documents %}
+<ul class="vesi-coverage">
+  {% for doc in artifact.documents %}
+  <li>
+    {{ doc.year }}{% if doc.type_label %}, {{ doc.type_label }}{% elif doc.type %}, {{ doc.type }}{% endif %}{% if doc.archive %}, {{ doc.archive }}{% if doc.fod %} {{ doc.fod }}{% endif %}{% endif %}{% if doc.archive_name %}, {{ doc.archive_name }}{% endif %}{% if doc.digitized %}, оцифровано{% endif %}{% if doc.rejected %}, отказано в выдаче{% endif %}
+    {% if doc.url %}<a href="{{ doc.url }}" rel="noopener noreferrer">снимки</a>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}

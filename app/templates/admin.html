@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Управление — Наследие{% endblock %}
+{% block body %}
+<h1>Управление</h1>
+{% if error %}
+<p id="admin-error" class="flash flash-error" role="alert">{{ error }}</p>
+{% endif %}
+
+<section class="stack" aria-labelledby="users-heading">
+  <h2 id="users-heading">Пользователи</h2>
+  <form method="post" action="/admin/users" class="card stack" {% if error %}aria-describedby="admin-error"{% endif %}>
+    <label class="field">Имя
+      <input name="username" autocomplete="off" required maxlength="64">
+    </label>
+    <label class="field">Пароль
+      <input type="password" name="password" autocomplete="new-password" minlength="8">
+    </label>
+    <p class="help">Если оставить пустым, человек задаст пароль при первом входе.</p>
+    <label class="check"><input type="checkbox" name="is_admin" value="on"> <span>Сделать администратором</span></label>
+    <button class="button-primary" type="submit">Создать пользователя</button>
+  </form>
+  {% for account in accounts %}
+  <article class="card stack">
+    <h3>{{ account.username }}</h3>
+    <p>{% if account.is_admin %}Администратор{% else %}Пользователь{% endif %} · {{ account.created_at | rusdate }}</p>
+    <details>
+      <summary>Сменить пароль</summary>
+      <form method="post" action="/admin/users/{{ account.id }}/password" class="stack">
+        <label class="field">Новый пароль для {{ account.username }}
+          <input type="password" name="password" autocomplete="new-password" required minlength="8">
+        </label>
+        <button class="button-secondary" type="submit">Сменить пароль</button>
+      </form>
+      <form method="post" action="/admin/users/{{ account.id }}/password-reset" class="stack">
+        <button class="button-secondary" type="submit">Пусть задаст пароль при входе</button>
+      </form>
+    </details>
+    <details>
+      <summary>Удалить пользователя</summary>
+      <form method="post" action="/admin/users/{{ account.id }}/delete" class="stack">
+        <p>Учётная запись {{ account.username }} будет удалена. Загруженные файлы останутся в пространствах.</p>
+        <button class="button-danger" type="submit">Удалить пользователя</button>
+      </form>
+    </details>
+  </article>
+  {% endfor %}
+</section>
+
+<section class="stack" aria-labelledby="spaces-heading">
+  <h2 id="spaces-heading">Пространства</h2>
+  <form method="post" action="/admin/spaces" class="card stack">
+    <label class="field">Название
+      <input name="name" required maxlength="80">
+    </label>
+    <label class="check"><input type="checkbox" name="add_self" value="on" checked> <span>Добавить меня в это пространство</span></label>
+    <button class="button-primary" type="submit">Создать пространство</button>
+  </form>
+  {% for item in all_spaces %}
+  <article class="card stack">
+    <h3>{{ item.name }}</h3>
+    <p class="muted">Создано {{ item.created_at | rusdate }}</p>
+    <form method="post" action="/admin/spaces/{{ item.id }}/members" class="stack">
+      {% for account in accounts %}
+      <label class="check"><input type="checkbox" name="user_id" value="{{ account.id }}"{% if account.id in member_map[item.id] %} checked{% endif %}> <span>{{ account.username }}</span></label>
+      {% endfor %}
+      <button class="button-primary" type="submit">Сохранить доступ</button>
+    </form>
+    <details>
+      <summary>Удалить пространство</summary>
+      <form method="post" action="/admin/spaces/{{ item.id }}/delete" class="stack">
+        <p>Пространство, деревья и таблицы будут удалены.</p>
+        <button class="button-danger" type="submit">Удалить пространство</button>
+      </form>
+    </details>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

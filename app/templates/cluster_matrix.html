@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Матрица кластеров — Наследие{% endblock %}
+{% block body %}
+<p><a href="/s/{{ space.id }}/clusters">К кластерам</a></p>
+<h1>Матрица кластеров</h1>
+<p class="help">{{ cluster_count }} кластеров, {{ pair_count }} совпадений. Цветная ячейка — общее совпадение. Нажмите её, чтобы открыть данные пары.</p>
+<div class="ac-scroll" tabindex="0">
+  <table class="ac-matrix">
+    <caption>Люди по кластерам. Строка и столбец — имя совпадения.</caption>
+    <thead>
+      <tr>
+        <th class="ac-label" scope="col">Кластер</th>
+        <th class="ac-name" scope="col">Имя</th>
+        {% for row in rows %}
+        <th class="ac-col" scope="col"><span>{{ row.name }}</span></th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr{% if row.group_start %} class="ac-group"{% endif %}>
+        <th class="ac-label {{ row.hue }}" scope="row">{{ row.cluster_label }}</th>
+        <th class="ac-name" scope="row">{{ row.name }}</th>
+        {% for cell in row.cells %}
+        <td{% if cell.css %} class="{{ cell.css }}"{% endif %}>{% if cell.href %}<a href="{{ cell.href }}">Совпадение</a>{% endif %}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+<article class="card stack">
+  <h2 class="wrap">{{ dataset.filename }}</h2>
+  {% if dataset.owner_name %}<p>Чьи кластеры: {{ dataset.owner_name }}</p>{% endif %}
+  <p class="muted">{% if dataset.status == 'ready' %}{{ dataset.row_count }} строк{% else %}Столбцы ещё не выбраны{% endif %} · {{ dataset.created_at | rusdate }}</p>
+  <p>
+    <a href="/s/{{ space.id }}/datasets/{{ dataset.id }}/columns">{% if dataset.status == 'ready' %}Изменить столбцы{% else %}Выбрать столбцы{% endif %}</a>
+    ·
+    <a href="/s/{{ space.id }}/files/datasets/{{ dataset.id }}">Скачать файл</a>
+  </p>
+  {% if show_match is defined and show_match and dataset.status == 'ready' %}
+  <form method="post" action="/s/{{ space.id }}/links/{{ dataset.id }}/match">
+    <button class="button-primary" type="submit">Найти совпадения</button>
+  </form>
+  <p>{{ link_stats[dataset.id].summary }}</p>
+  {% if link_stats[dataset.id].examples %}
+  <p>Не сопоставились:</p>
+  <ul>
+    {% for line in link_stats[dataset.id].examples %}
+    <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+  {% if link_stats[dataset.id].hidden %}
+  <p>Ещё строк: {{ link_stats[dataset.id].hidden }}.</p>
+  {% endif %}
+  {% endif %}
+  {% endif %}
+  <details>
+    <summary>Удалить таблицу</summary>
+    <form method="post" action="/s/{{ space.id }}/datasets/{{ dataset.id }}/delete" class="stack">
+      <p>Строки этой таблицы будут удалены. Подтверждённые связи останутся.</p>
+      <button class="button-danger" type="submit">Удалить таблицу</button>
+    </form>
+  </details>
+</article>

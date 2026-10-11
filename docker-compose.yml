@@ -1,0 +1,34 @@
+name: heritage
+
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      HERITAGE_ENV: production
+      HERITAGE_DATA_DIR: /data
+      HERITAGE_COOKIE_SECURE: "1"
+    volumes:
+      - heritage-data:/data
+      - heritage-certs:/certs
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./deploy/caddy-entrypoint.sh:/entrypoint.sh:ro
+      - heritage-certs:/certs
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    restart: unless-stopped
+
+volumes:
+  heritage-data:
+  heritage-certs:

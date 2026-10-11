@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Новогрудок{% endblock %}
+{% block body_attrs %}{% endblock %}
+{% block page_class %} page-matrix{% endblock %}
+{% block body %}
+<nav class="unit-switch" aria-label="Единица">
+  <a class="button {% if show_cm %}button-secondary{% else %}button-primary is-selected{% endif %}" href="/novogrudok"{% if not show_cm %} aria-current="page"{% endif %}>Gen</a>
+  <a class="button {% if show_cm %}button-primary is-selected{% else %}button-secondary{% endif %}" href="/novogrudok?show=cm"{% if show_cm %} aria-current="page"{% endif %}>cM</a>
+</nav>
+<h1>Новогрудок</h1>
+<p>Исследовано {{ saved_count }}/{{ kit_count }} наборов</p>
+{% if rows %}
+<p class="help">{{ cluster_count }} кластеров, {{ kit_count }} наборов, страницы есть у {{ saved_count }}. В цветной ячейке — поколение или общие cM. Если сравнение сохранено только в одну сторону, то же число стоит и в обратной ячейке. Цвет зависит от поколения. Нажатие открывает это совпадение. Пустая ячейка значит, что совпадение не сохранено ни на одной из двух страниц.</p>
+{% include "partials/cluster_on_tree.html" %}
+<div class="ac-scroll novogrudok-scroll" tabindex="0">
+  <table class="ac-matrix gedmatch-cluster-matrix novogrudok-matrix">
+    <caption>Наборы по кластерам. Строка и столбец — наборы, в ячейке — сохранённое совпадение.</caption>
+    <thead>
+      <tr>
+        <th class="ac-label" scope="col">Кластер</th>
+        <th class="ac-name" scope="col">Набор</th>
+        {% for row in rows %}
+        <th class="ac-col{% if row.group_start %} gedmatch-cluster-split{% endif %}" scope="col"><span class="novogrudok-col"><a class="novogrudok-kit" href="https://app.gedmatch.com/OneToManyFreeOriginalResults.php?kit={{ row.kit }}">{{ row.kit }}</a></span></th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr{% if row.group_start %} class="ac-group"{% endif %}>
+        <th class="ac-label {{ row.hue }}" scope="row">{{ row.cluster_label }}</th>
+        <th class="ac-name gedmatch-cluster-kit" scope="row"><a class="gedmatch-matrix-kit" href="https://app.gedmatch.com/OneToManyFreeOriginalResults.php?kit={{ row.kit }}">{{ row.kit }}</a></th>
+        {% for cell in row.cells %}
+        <td{% if rows[loop.index0].group_start or cell.css %} class="{% if rows[loop.index0].group_start %}gedmatch-cluster-split{% if cell.css %} {% endif %}{% endif %}{{ cell.css }}"{% endif %}>{% if cell.href %}<a href="{{ cell.href }}">{{ (cell.cm if show_cm else cell.gen) | cm }}</a>{% endif %}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Список наборов пуст.</p>
+{% endif %}
+{% endblock %}

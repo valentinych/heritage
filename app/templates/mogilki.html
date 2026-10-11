@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Могілкі</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/mogilki.css">
+  {% if unlocked %}
+  <link rel="stylesheet" href="/mogilki/vendor/leaflet.css">
+  <link rel="stylesheet" href="/mogilki/vendor/leaflet.markercluster.css">
+  {% endif %}
+</head>
+<body class="{% if unlocked %}mogilki-body{% endif %}">
+  <a class="skip" href="#content">Да зместу</a>
+  <header class="topbar">
+    <a class="brand" href="/">Наследие</a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="/mogilki" aria-current="page">Могілкі</a>
+      <a href="/novogrudok">ДНК Навагрудка</a>
+      <a href="/vesi">Города и веси</a>
+    </nav>
+  </header>
+  {% if not unlocked %}
+  <main class="page" id="content">
+    <h1>Могілкі</h1>
+    {% if error %}
+    <p id="mogilki-error" class="flash flash-error" role="alert">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="{{ gate_action }}" class="stack">
+      <label class="field">Пароль
+        <input type="password" name="password" autocomplete="current-password" required {% if error %}aria-invalid="true" aria-describedby="mogilki-error"{% endif %} autofocus>
+      </label>
+      <button class="button-primary" type="submit">Адкрыць</button>
+    </form>
+  </main>
+  {% else %}
+  <div class="mogilki-page">
+    <header class="mogilki-bar">
+      <h1>Могілкі</h1>
+      <form method="post" action="/mogilki/logout">
+        <button class="button-secondary" type="submit">Выйсці</button>
+      </form>
+    </header>
+    <main id="content">
+      <p>Спісы пахаванняў Навагрудскага раёна. Шукайце па могілках, прозвішчы і годзе нараджэння ці смерці.</p>
+      <p id="search-lang">Пошук па-руску.</p>
+      <form id="search" class="mogilki-search">
+        <label class="field">Могілкі
+          <input name="cemetery" list="cemetery-names" autocomplete="off" aria-describedby="search-lang">
+        </label>
+        <datalist id="cemetery-names"></datalist>
+        <label class="field">Прозвішча
+          <input name="surname" autocomplete="off" aria-describedby="search-lang">
+        </label>
+        <label class="field">Год
+          <input name="year" inputmode="numeric" maxlength="4" autocomplete="off" aria-describedby="search-lang">
+        </label>
+        <button class="button-primary" type="submit">Знайсці</button>
+        <button class="button-secondary" type="reset">Скінуць</button>
+      </form>
+      <p id="status" role="status">Загрузка спісаў.</p>
+      <fieldset class="mogilki-layers">
+        <legend>Слаі</legend>
+        <div class="mogilki-layer-actions">
+          <button type="button" id="show-all" class="button-secondary">Паказаць усе</button>
+          <button type="button" id="hide-all" class="button-secondary">Схаваць усе</button>
+        </div>
+        <div id="layer-list"></div>
+      </fieldset>
+      <p id="map-status" role="status"></p>
+      <div id="map" class="mogilki-map" role="region" aria-label="Мапа могілак"></div>
+      <p class="mogilki-credit">Падкладка © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.</p>
+      <h2>Спіс</h2>
+      <ul id="results" class="mogilki-results" tabindex="-1"></ul>
+    </main>
+  </div>
+  <script src="/mogilki/vendor/leaflet.js"></script>
+  <script src="/mogilki/vendor/leaflet.markercluster.js"></script>
+  <script src="/static/mogilki.js"></script>
+  {% endif %}
+</body>
+</html>

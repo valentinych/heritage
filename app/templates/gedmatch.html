@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}GedMatch — Наследие{% endblock %}
+{% block body %}
+<h1>GedMatch</h1>
+<p class="help">Совпадения one-to-many сравниваются с людьми деревьев и с уже загруженными кластерами. Степень родства — возможная: одни и те же cM подходят нескольким отношениям. Плотный кластер — это кластер, куда попали хотя бы два совпадения этого набора. Дерево MyHeritage подключается через загруженный GEDCOM и ручную привязку набора к человеку.</p>
+<form method="post" action="/s/{{ space.id }}/gedmatch" enctype="multipart/form-data" class="card stack">
+  <label class="field">Набор, с которого смотрели совпадения
+    <input name="kit" value="{{ kit or 'BX7602122' }}" required>
+  </label>
+  <label class="field">Сохранённая страница one-to-many
+    <input type="file" name="file" accept=".html,.htm,.txt" required>
+  </label>
+  <button class="button-primary" type="submit">Разобрать таблицу</button>
+</form>
+{% if matrices %}
+<form method="get" action="/s/{{ space.id }}/gedmatch" class="filters">
+  <label class="field">Матрица
+    <select name="matrix">
+      {% for item in matrices %}
+      <option value="{{ item.id }}" {% if current and item.id == current.id %}selected{% endif %}>{{ item.name }}</option>
+      {% endfor %}
+      </select>
+  </label>
+  {% if kit %}<input type="hidden" name="kit" value="{{ kit }}">{% endif %}
+  {% if show_tables %}<input type="hidden" name="show" value="1">{% endif %}
+  <button class="button-secondary" type="submit">Показать</button>
+</form>
+{% endif %}
+<form method="post" action="/s/{{ space.id }}/gedmatch/matrices" class="card stack">
+  <h2>Новая матрица</h2>
+  <p class="help">Берутся уже сохранённые наборы. Совпадения не копируются.</p>
+  <label class="field">Имя
+    <input name="name" maxlength="200" required>
+  </label>
+  <label class="field">Наборы
+    <select name="kit" multiple size="8">
+      {% for item in stored_kits %}
+      <option value="{{ item }}">{{ item }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="button-primary" type="submit">Создать матрицу</button>
+</form>
+{% if kits %}
+<p class="help"><a href="/s/{{ space.id }}/gedmatch/clusters{% if current %}?matrix={{ current.id }}{% endif %}">Матрица кластеров</a> группирует эти наборы по сильным совпадениям.</p>
+{% endif %}
+{% if kinships is defined and kinships %}
+<h2>Родственные связи</h2>
+<ul>
+  {% for item in kinships %}
+  <li><a href="{{ item.href }}">{{ item.label }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% if show_tables and matrix.kits %}
+<h2>Общие cM между наборами</h2>
+<p class="help">Строка — страница набора, столбец — совпадение на ней. Пустая ячейка значит, что этой пары не было в таблице.</p>
+<div class="table-wrap gedmatch-matrix">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Набор</th>
+        {% for column in matrix.kits %}
+        <th scope="col" class="gedmatch-matrix-col"><span>{{ column }}</span></th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in matrix.rows %}
+      <tr>
+        <th scope="row" class="kit"><span class="gedmatch-matrix-kit">{{ row.kit }}</span>{% if row.name %}<span class="gedmatch-matrix-name">{{ row.name }}</span>{% endif %}</th>
+        {% for column in matrix.kits %}
+        {% set cell = row.cells[loop.index0] %}
+        <td class="num{% if row.kit == column %} gedmatch-matrix-self{% elif cell is not none and cell.tier %} {{ cell.tier }}{% endif %}">{% if cell is not none and cell.cm is not none %}{{ cell.cm | cm }}{% endif %}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% if kits %}
+<form method="get" action="/s/{{ space.id }}/gedmatch" class="filters">
+  {% if current %}<input type="hidden" name="matrix" value="{{ current.id }}">{% endif %}
+  {% if show_tables %}<input type="hidden" name="show" value="1">{% endif %}
+  <label class="field">Набор
+    <select name="kit">
+      {% for item in kits %}
+      <option value="{{ item }}" {% if item == kit %}selected{% endif %}>{{ item }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% if not show_tables %}
+  <button class="button-primary" type="submit" name="show" value="1">Показать таблицу</button>
+  {% endif %}
+  <button class="button-secondary" type="submit">Показать</button>
+</form>
+{% endif %}
+{% if show_tables and dense %}
+<h2>Плотные кластеры</h2>
+<ul>
+  {% for group in dense %}
+  <li>{{ group.owner }}, кластер {{ group.label }}: {{ group.names | join(", ") }}</li>
+  {% endfor %}
+</ul>
+{% elif show_tables and total %}
+<p>Плотных кластеров пока нет: ни один загруженный кластер не собрал два совпадения этого набора.</p>
+{% endif %}
+{% if show_tables and total %}
+<p>Совпадений: {{ total }}.</p>
+{% if owner %}
+<p class="gedmatch-owner">
+  {% if owner.email %}{% if owner.given %}{{ owner.given }} {% endif %}<details><summary>{{ owner.surname or "Фамилия" }}</summary> {{ owner.email }}</details>{% else %}{{ owner.name }}{% endif %}
+  <span class="muted">{{ kit }}{% if owner.company %} · {{ owner.company }}{% endif %}</span>
+</p>
+{% endif %}
+<div class="table-wrap gedmatch-table">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Набор</th>
+        <th scope="col">Имя</th>
+        <th scope="col">Источник</th>
+        <th scope="col" class="num">Общий cM</th>
+        <th scope="col" class="num">Крупнейший сегмент</th>
+        <th scope="col" class="num">Поколения</th>
+        <th scope="col" class="num">Перекрытие</th>
+        <th scope="col">Дата сравнения</th>
+        <th scope="col">Возможная степень</th>
+        <th scope="col">Привязка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="kit">{{ row.hit.match_kit }}</td>
+        <td class="wrap">{{ row.hit.name }}</td>
+        <td class="wrap">{{ row.hit.company }}</td>
+        <td class="num">{{ row.hit.total_cm | cm }}</td>
+        <td class="num">{{ row.hit.largest_cm | cm }}</td>
+        <td class="num">{{ row.hit.generations | cm }}</td>
+        <td class="num">{{ row.hit.overlap | cm }}</td>
+        <td class="kit">{{ row.hit.date_compared }}</td>
+        <td class="wrap">{% if row.relations %}{{ row.relations | join("; ") }}{% else %}нет оценки{% endif %}</td>
+        <td class="wrap">
+          {% if row.linked %}
+          <a href="/s/{{ space.id }}/people/{{ row.linked[0].id }}">{{ row.linked[0].full_name }}</a>
+          <form method="post" action="/s/{{ space.id }}/gedmatch/{{ row.hit.id }}/link" class="gedmatch-link">
+            {% if current %}<input type="hidden" name="matrix" value="{{ current.id }}">{% endif %}
+            <input type="hidden" name="show" value="1">
+            <button class="button-secondary" type="submit">Снять</button>
+          </form>
+          {% else %}
+          <form method="post" action="/s/{{ space.id }}/gedmatch/{{ row.hit.id }}/link" class="gedmatch-link">
+            {% if current %}<input type="hidden" name="matrix" value="{{ current.id }}">{% endif %}
+            <input type="hidden" name="show" value="1">
+            <label class="field" for="person-{{ row.hit.id }}">Номер из адреса карточки</label>
+            <input id="person-{{ row.hit.id }}" name="person_id" inputmode="numeric" required>
+            <button class="button-secondary" type="submit">Привязать</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif not kits %}
+<p>Таблицы ещё нет. Сохраните страницу one-to-many из браузера и загрузите её сюда.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="cluster-scroll{% if scheme_fit is defined and scheme_fit %} cluster-scroll-fit{% endif %}" tabindex="0" aria-label="{{ scheme_label }}">
+  <svg class="cluster-tree" width="{{ scheme.width }}" height="{{ scheme.height }}" role="group" aria-label="{{ scheme_label }}">
+    {% for path in scheme.paths %}
+    <path class="tree-{{ path.kind }}{% if path.css is defined %} {{ path.css }}{% endif %}" d="{{ path.d }}" />
+    {% endfor %}
+    {% for node in scheme.nodes %}
+    {% if node.href %}
+    <a href="{{ node.href }}" aria-label="{{ node.label }}">
+    {% endif %}
+    <g class="node node-{{ node.kind }}{% if node.sex == 'F' %} node-f{% elif node.sex == 'M' %} node-m{% endif %}"{% if not node.href %} role="group" aria-label="{{ node.label }}"{% endif %}>
+      <rect x="{{ node.x }}" y="{{ node.y }}" width="{{ node.w }}" height="{{ node.h }}" />
+      <text x="{{ node.x + 8 }}" y="{{ node.y + 6 }}">
+        {% for line in node.lines %}
+        <tspan class="{{ line.class }}" x="{{ node.x + 8 }}" dy="{{ line.dy }}">{% if line.full != line.text %}<title>{{ line.full }}</title>{% endif %}{{ line.text }}</tspan>
+        {% endfor %}
+      </text>
+    </g>
+    {% if node.href %}
+    </a>
+    {% endif %}
+    {% endfor %}
+  </svg>
+</div>

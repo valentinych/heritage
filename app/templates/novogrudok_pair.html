@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Совпадение{% endblock %}
+{% block body_attrs %}{% endblock %}
+{% block body %}
+<p><a href="/novogrudok">К матрице</a></p>
+<h1>Совпадение</h1>
+<section class="card stack">
+  <dl class="facts">
+    <div><dt>Набор</dt><dd class="kit"><a href="https://app.gedmatch.com/OneToManyFreeOriginalResults.php?kit={{ match.source_kit }}">{{ match.source_kit }}</a></dd></div>
+    <div><dt>Совпадение</dt><dd class="kit"><a href="https://app.gedmatch.com/OneToManyFreeOriginalResults.php?kit={{ match.match_kit }}">{{ match.match_kit }}</a></dd></div>
+    <div><dt>Общий cM</dt><dd>{{ match.total_cm | cm }}</dd></div>
+    <div><dt>Крупнейший сегмент</dt><dd>{{ match.largest_cm | cm }}</dd></div>
+    <div><dt>Поколения</dt><dd>{{ match.generations | cm }}</dd></div>
+    <div><dt>Перекрытие</dt><dd>{{ match.overlap | cm }}</dd></div>
+    <div><dt>Дата сравнения</dt><dd>{{ match.date_compared or "—" }}</dd></div>
+    <div><dt>Источник</dt><dd>{{ match.company or "—" }}</dd></div>
+  </dl>
+</section>
+<section class="card stack">
+  <h2>Прогноз родства</h2>
+  {% if saved is defined and saved %}
+  <p>Гипотеза по cM: {{ forecast.summary }}</p>
+  {% elif forecast is defined %}
+  <p>{{ forecast.summary }}</p>
+  {% endif %}
+</section>
+{% if (saved is defined and saved) or (kinship_editor is defined and kinship_editor) %}
+<section class="card stack">
+  <h2>Родство</h2>
+  {% if saved is defined and saved %}
+  <p>{{ saved.sentence }}</p>
+  {% endif %}
+  {% if kinship_editor is defined and kinship_editor %}
+  <form method="post" action="/novogrudok/kinship" class="stack">
+    <input type="hidden" name="source_kit" value="{{ match.source_kit }}">
+    <input type="hidden" name="match_kit" value="{{ match.match_kit }}">
+    <label class="field">Связь
+      <select name="relation">
+        {% for item in kinship_options %}
+        <option value="{{ item.value }}" {% if saved_choice is defined and saved_choice == item.value %}selected{% endif %}>{{ item.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="button-primary" type="submit">Сохранить связь</button>
+  </form>
+  {% if saved is defined and saved %}
+  <form method="post" action="/novogrudok/kinship/delete">
+    <input type="hidden" name="source_kit" value="{{ match.source_kit }}">
+    <input type="hidden" name="match_kit" value="{{ match.match_kit }}">
+    <button class="button-danger" type="submit">Удалить связь</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

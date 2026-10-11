@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Деревья — Наследие{% endblock %}
+{% block body %}
+<h1>Деревья</h1>
+{% if error %}
+<p id="tree-error" class="flash flash-error" role="alert">{{ error }}</p>
+{% endif %}
+<form method="post" action="/s/{{ space.id }}/trees" enctype="multipart/form-data" class="card stack">
+  <label class="field">Файл GEDCOM
+    <input type="file" name="file" accept=".ged,.gedcom" required {% if error %}aria-invalid="true" aria-describedby="tree-error"{% else %}aria-describedby="gedcom-help"{% endif %}>
+  </label>
+  <p class="help" id="gedcom-help">Экспорт дерева из MyHeritage, файл .ged или .gedcom.</p>
+  <button class="button-primary" type="submit">Загрузить GEDCOM</button>
+</form>
+{% if trees %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Файл</th>
+        <th scope="col" class="num">Люди</th>
+        <th scope="col">Загружено</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tree in trees %}
+      <tr>
+        <td class="wrap"><a href="/s/{{ space.id }}/trees/{{ tree.id }}">{{ tree.filename }}</a></td>
+        <td class="num">{{ tree.person_count }}</td>
+        <td>{{ tree.created_at | rusdate }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Пока нет деревьев. Загрузите файл GEDCOM из MyHeritage.</p>
+{% endif %}
+{% endblock %}

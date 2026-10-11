@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ tree.filename }} — Наследие{% endblock %}
+{% block body %}
+<h1 class="wrap">{{ tree.filename }}</h1>
+<p class="muted">{{ tree.person_count }} человек · <a href="/s/{{ space.id }}/files/trees/{{ tree.id }}">Скачать GEDCOM</a></p>
+<p class="help">Дети слева, старшие предки справа. Каждая ветвь собрана отдельно и идёт от старших к младшим. Братья и сёстры стоят столбиком, короткая линия между карточками одного столбика — брак, линия вправо ведёт к родителям.</p>
+<form method="get" class="row-form">
+  <label class="field">Имя
+    <input type="search" name="q" value="{{ query }}" autocomplete="off">
+  </label>
+  <button class="button-primary" type="submit">Найти</button>
+  {% if query %}
+  <a href="/s/{{ space.id }}/trees/{{ tree.id }}">Показать всех</a>
+  {% endif %}
+</form>
+{% if scheme %}
+{% with scheme_label="Схема дерева. Ветви раздельно, старшие справа, дети слева.", scheme_fit=True %}
+{% include "partials/scheme.html" %}
+{% endwith %}
+{% else %}
+<p>Никого не найдено.</p>
+{% endif %}
+<details>
+  <summary>Удалить дерево</summary>
+  <form method="post" action="/s/{{ space.id }}/trees/{{ tree.id }}/delete" class="stack">
+    <p>Дерево и люди из него будут удалены. Связи с этими людьми тоже исчезнут.</p>
+    <button class="button-danger" type="submit">Удалить дерево</button>
+  </form>
+</details>
+{% endblock %}

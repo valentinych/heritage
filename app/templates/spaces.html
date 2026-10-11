@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Пространства — Наследие{% endblock %}
+{% block body %}
+<h1>Пространства</h1>
+{% if spaces %}
+<ul class="stats">
+  {% for item in spaces %}
+  <li><a href="/s/{{ item.id }}">{{ item.name }}</a></li>
+  {% endfor %}
+</ul>
+{% elif user.is_admin %}
+<p>Пространств пока нет.</p>
+<a class="button button-primary" href="/admin">Создать пространство</a>
+{% else %}
+<p>Вас ещё не добавили ни в одно пространство. Попросите администратора открыть доступ.</p>
+{% endif %}
+{% endblock %}

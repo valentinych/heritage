@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Связи — Наследие{% endblock %}
+{% block body %}
+<h1>Связи</h1>
+<p class="help">Строка ищет людей во всех деревьях пространства по имени. Буквы ё и е считаются одинаковыми, порядок слов не важен. Латиница и кириллица сами не совпадут. Если указан год, в дереве должен быть тот же год. Без года строка отсекается, когда однофамильцев больше 12.</p>
+<form method="post" action="/s/{{ space.id }}/links/trees" class="card stack">
+  <p class="help">Одинаковые имя и фамилия, брак в 16–35 лет, смерть после рождения и после брака, жизнь не длиннее 100 лет; сначала тот же приход, затем между приходами.</p>
+  <button class="button-primary" type="submit">Собрать деревья</button>
+</form>
+<form method="get" action="/s/{{ space.id }}/links" class="row-form">
+  <label class="field">Фамилия
+    <input type="search" name="q" value="{{ tree_query }}" autocomplete="off">
+  </label>
+  <input type="hidden" name="status" value="{{ status_filter }}">
+  <button class="button-primary" type="submit">Найти</button>
+</form>
+{% if assembled is not none %}
+<p>{% if people_total == assembled|length %}Показано: {{ people_total }}.{% else %}Показано: {{ people_start }}–{{ people_end }} из {{ people_total }}.{% endif %}</p>
+<div class="table-wrap links-scroll">
+  <table aria-label="Собранные люди">
+    <thead>
+      <tr>
+        <th scope="col">Фамилия</th>
+        <th scope="col">Имя</th>
+        <th scope="col">Отец</th>
+        <th scope="col">Мать</th>
+        <th scope="col">Фамилия матери</th>
+        <th scope="col">Отец в индексе</th>
+        <th scope="col">Мать в индексе</th>
+        <th scope="col">Родители</th>
+        <th scope="col">Родители супруга</th>
+        <th scope="col">Год рождения</th>
+        <th scope="col">Год смерти</th>
+        <th scope="col">Брак (год)</th>
+        <th scope="col">Приход</th>
+        <th scope="col">Другое дерево или другой приход</th>
+        <th scope="col">Человек в дереве</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for person in assembled %}
+      <tr>
+        <td class="wrap">{{ person.surname }}</td>
+        <td class="wrap">{{ person.given }}</td>
+        <td class="wrap">{{ person.father or "—" }}</td>
+        <td class="wrap">{{ person.mother or "—" }}</td>
+        <td class="wrap">{{ person.mother_surname or "—" }}</td>
+        <td class="wrap">{{ person.father_match or "—" }}</td>
+        <td class="wrap">{{ person.mother_match or "—" }}</td>
+        <td class="wrap">{{ person.parents or "—" }}</td>
+        <td class="wrap">{{ person.spouse_parents or "—" }}</td>
+        <td class="num">{{ person.birth_year if person.birth_year is not none else "—" }}</td>
+        <td class="num">{{ person.death_year if person.death_year is not none else "—" }}</td>
+        <td class="num">{{ person.marriage or "—" }}</td>
+        <td class="wrap">{{ person.parish }}</td>
+        <td class="wrap">{{ person.other or "—" }}</td>
+        <td class="wrap">{% if person.person_id %}<a href="/s/{{ space.id }}/people/{{ person.person_id }}">{{ person.person_name }}</a>{% else %}нет{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if people_pager.pages > 1 %}
+<nav class="pager" aria-label="Страницы людей">
+  {% if people_pager.prev_href %}<a href="{{ people_pager.prev_href }}">Предыдущая страница</a>{% endif %}
+  <span>Страница {{ people_pager.page }} из {{ people_pager.pages }}</span>
+  {% if people_pager.next_href %}<a href="{{ people_pager.next_href }}">Следующая страница</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="help">Список людей появится после сборки деревьев.</p>
+{% endif %}
+<form method="post" action="/s/{{ space.id }}/links/geneteka" class="card stack">
+  <label class="field">Ссылка на приход Geneteka
+    <input type="url" name="url" required autocomplete="off">
+  </label>
+  <button class="button-primary" type="submit">Скачать индекс прихода</button>
+</form>
+<p class="help">Скачиваются все страницы рождений, браков и смертей этого прихода. Если сервер не открывает сайт, на своём компьютере выполните python -m app.tools.geneteka «адрес» --upload https://62.238.112.84 --space {{ space.id }} --user ИМЯ — пароль программа спросит сама.</p>
+<form method="post" action="/s/{{ space.id }}/links" enctype="multipart/form-data" class="card stack">
+  <label class="field">Файл CSV или Excel
+    <input type="file" name="file" accept=".csv,.xlsx,.tsv,.txt" required>
+  </label>
+  <button class="button-primary" type="submit">Загрузить таблицу</button>
+</form>
+{% set show_match = true %}
+{% for dataset in datasets %}
+{% include "partials/dataset_card.html" %}
+{% endfor %}
+{% if not datasets %}
+<p>Пока нет таблиц связей. Загрузите таблицу с именами и, если есть, годами рождения.</p>
+{% endif %}
+<nav class="filters" aria-label="Статус связей">
+  <a href="/s/{{ space.id }}/links?status=proposed" {% if status_filter == 'proposed' %}aria-current="page"{% endif %}>Предложенные</a>
+  <a href="/s/{{ space.id }}/links?status=confirmed" {% if status_filter == 'confirmed' %}aria-current="page"{% endif %}>Подтверждённые</a>
+  <a href="/s/{{ space.id }}/links?status=rejected" {% if status_filter == 'rejected' %}aria-current="page"{% endif %}>Отклонённые</a>
+</nav>
+{% if pairs %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Человек</th>
+        <th scope="col">Человек</th>
+        <th scope="col">Статус</th>
+        <th scope="col">Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pair in pairs %}
+      <tr>
+        <td class="wrap"><a href="/s/{{ space.id }}/people/{{ pair.low.id }}">{{ pair.low.full_name }}</a><br><span class="muted">{{ pair.low_tree.filename }}</span></td>
+        <td class="wrap"><a href="/s/{{ space.id }}/people/{{ pair.high.id }}">{{ pair.high.full_name }}</a><br><span class="muted">{{ pair.high_tree.filename }}</span></td>
+        <td><span class="tag tag-{{ pair.status }}">{{ pair.status | status_label }}</span></td>
+        <td>
+          <div class="actions">
+            {% if status_filter == 'proposed' %}
+            <form method="post" action="/s/{{ space.id }}/links/{{ pair.id }}/status">
+              <input type="hidden" name="status" value="confirmed">
+              <input type="hidden" name="back" value="{{ status_filter }}">
+              <button class="button-primary" type="submit">Подтвердить</button>
+            </form>
+            <form method="post" action="/s/{{ space.id }}/links/{{ pair.id }}/status">
+              <input type="hidden" name="status" value="rejected">
+              <input type="hidden" name="back" value="rejected">
+              <button class="button-danger" type="submit">Отклонить</button>
+            </form>
+            {% elif status_filter == 'confirmed' %}
+            <form method="post" action="/s/{{ space.id }}/links/{{ pair.id }}/status">
+              <input type="hidden" name="status" value="rejected">
+              <input type="hidden" name="back" value="rejected">
+              <button class="button-danger" type="submit">Отклонить</button>
+            </form>
+            {% else %}
+            <form method="post" action="/s/{{ space.id }}/links/{{ pair.id }}/status">
+              <input type="hidden" name="status" value="proposed">
+              <input type="hidden" name="back" value="proposed">
+              <button class="button-secondary" type="submit">Вернуть</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if pager.pages > 1 %}
+<nav class="pager" aria-label="Страницы">
+  {% if pager.prev_href %}<a href="{{ pager.prev_href }}">Предыдущая страница</a>{% endif %}
+  <span>Страница {{ pager.page }} из {{ pager.pages }}</span>
+  {% if pager.next_href %}<a href="{{ pager.next_href }}">Следующая страница</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p>{{ empty_links }}</p>
+{% endif %}
+{% endblock %}

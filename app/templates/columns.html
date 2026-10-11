@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Столбцы — Наследие{% endblock %}
+{% block body %}
+<p><a href="/s/{{ space.id }}/{{ back_slug }}">{{ back_label }}</a></p>
+<h1>Столбцы</h1>
+<p class="help wrap">Файл {{ dataset.filename }}. Первая строка считается заголовком.</p>
+{% if error %}
+<p id="column-error" class="flash flash-error" role="alert">{{ error }}</p>
+{% endif %}
+{% if headers %}
+<form method="post" class="card stack" {% if error %}aria-describedby="column-error"{% endif %}>
+  {% for field in fields %}
+  <label class="field">{{ field.label }}{% if field.required %}<span class="muted">, обязательно</span>{% endif %}
+    <select name="{{ field.key }}" {% if error and loop.first %}autofocus{% endif %}>
+      <option value="">{% if field.required %}Выберите столбец{% else %}Не использовать{% endif %}</option>
+      {% for header in headers %}
+      <option value="{{ header }}" {% if field.selected == header %}selected{% endif %}>{{ header }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% endfor %}
+  <button class="button-primary" type="submit">Сохранить столбцы</button>
+</form>
+{% if preview %}
+<h2>Первые строки файла</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        {% for header in headers %}
+        <th scope="col">{{ header }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in preview %}
+      <tr>
+        {% for header in headers %}
+        <td>{{ row[header] }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

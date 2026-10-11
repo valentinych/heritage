@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Вход — Наследие{% endblock %}
+{% block body_attrs %} class="layout-login"{% endblock %}
+{% block header %}{% endblock %}
+{% block body %}
+<h1>Вход</h1>
+{% if setup_needed %}
+<p role="status">Учётная запись администратора ещё не создана. Задайте HERITAGE_ADMIN_USER и HERITAGE_ADMIN_PASSWORD и перезапустите приложение.</p>
+{% endif %}
+{% if error %}
+<p id="login-error" class="flash flash-error" role="alert">{{ error }}</p>
+{% endif %}
+{% if choose_password is defined and choose_password %}
+<p>Для имени {{ username }} пароль ещё не задан. Придумайте его и повторите.</p>
+<form method="post" action="/login/password" class="stack">
+  <input type="hidden" name="username" value="{{ username }}">
+  <label class="field">Пароль
+    <input type="password" name="password" autocomplete="new-password" required minlength="8" {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %} autofocus>
+  </label>
+  <label class="field">Пароль ещё раз
+    <input type="password" name="password_repeat" autocomplete="new-password" required minlength="8" {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %}>
+  </label>
+  <button class="button-primary" type="submit">Задать пароль</button>
+</form>
+{% else %}
+<form method="post" action="/login" class="stack">
+  <label class="field">Имя
+    <input name="username" autocomplete="username" required {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %} autofocus>
+  </label>
+  <label class="field">Пароль
+    <input type="password" name="password" autocomplete="current-password" required {% if error %}aria-invalid="true" aria-describedby="login-error"{% endif %}>
+  </label>
+  <button class="button-primary" type="submit">Войти</button>
+</form>
+<p><a href="/register">Регистрация</a></p>
+{% endif %}
+{% endblock %}

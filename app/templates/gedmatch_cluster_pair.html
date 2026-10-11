@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Совпадение — Наследие{% endblock %}
+{% block body %}
+<p><a href="/s/{{ space.id }}/gedmatch/clusters">К матрице</a></p>
+<h1>Совпадение</h1>
+<section class="card stack">
+  <dl class="facts">
+    <div><dt>Набор</dt><dd class="kit">{{ match.source_kit }}</dd></div>
+    {% if match.source_name %}<div><dt>Имя набора</dt><dd class="wrap">{{ match.source_name }}</dd></div>{% endif %}
+    <div><dt>Совпадение</dt><dd class="kit">{{ match.match_kit }}</dd></div>
+    {% if match.name %}<div><dt>Имя</dt><dd class="wrap">{{ match.name }}</dd></div>{% endif %}
+    <div><dt>Общий cM</dt><dd>{{ match.total_cm | cm }}</dd></div>
+    <div><dt>Крупнейший сегмент</dt><dd>{{ match.largest_cm | cm }}</dd></div>
+    <div><dt>Поколения</dt><dd>{{ match.generations | cm }}</dd></div>
+    <div><dt>Перекрытие</dt><dd>{{ match.overlap | cm }}</dd></div>
+    <div><dt>Дата сравнения</dt><dd>{{ match.date_compared or "—" }}</dd></div>
+    <div><dt>Источник</dt><dd>{{ match.company or "—" }}</dd></div>
+  </dl>
+</section>
+<section class="card stack">
+  <h2>Родство</h2>
+  {% if saved is defined and saved %}
+  <p>{{ saved.sentence }}</p>
+  <p>Гипотеза по cM: {{ forecast.summary }}</p>
+  {% elif forecast is defined %}
+  <p>{{ forecast.summary }}</p>
+  {% endif %}
+  {% if kinship_editor is defined and kinship_editor %}
+  <form method="post" action="/s/{{ space.id }}/gedmatch/kinship" class="stack">
+    <input type="hidden" name="source_kit" value="{{ match.source_kit }}">
+    <input type="hidden" name="match_kit" value="{{ match.match_kit }}">
+    <label class="field">Связь
+      <select name="relation">
+        {% for item in kinship_options %}
+        <option value="{{ item.value }}" {% if saved_choice == item.value %}selected{% endif %}>{{ item.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="button-primary" type="submit">Сохранить связь</button>
+  </form>
+  {% if saved is defined and saved %}
+  <form method="post" action="/s/{{ space.id }}/gedmatch/kinship/delete">
+    <input type="hidden" name="source_kit" value="{{ match.source_kit }}">
+    <input type="hidden" name="match_kit" value="{{ match.match_kit }}">
+    <button class="button-danger" type="submit">Удалить связь</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

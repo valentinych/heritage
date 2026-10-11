@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Могілкі</title>
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="vendor/leaflet.markercluster.css">
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+  <a class="skip" href="#map">Да мапы</a>
+  <div class="app">
+    <aside class="panel" id="panel">
+      <div class="panel-head">
+        <h1 id="map-title">Могілкі</h1>
+        <p class="muted" id="summary"></p>
+      </div>
+      <form class="search" role="search" id="search-form">
+        <label for="q">Пошук</label>
+        <p class="muted" id="search-lang">Пошук па-руску.</p>
+        <input id="q" name="q" type="search" autocomplete="off" enterkeyhint="search" spellcheck="false" aria-describedby="search-lang">
+      </form>
+      <fieldset class="layers">
+        <legend>Слаі</legend>
+        <div class="layer-actions">
+          <button type="button" id="show-all">Паказаць усе</button>
+          <button type="button" id="hide-all">Схаваць усе</button>
+        </div>
+        <div id="layer-list"></div>
+      </fieldset>
+      <div class="results" aria-labelledby="results-label">
+        <h2 id="results-label">Вынікі</h2>
+        <p class="muted" id="results-hint">Увядзіце прынамсі 2 літары назвы.</p>
+        <ul id="result-list"></ul>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <p class="muted source">Кропкі скапіяваны з Google My Maps. Падкладка © OpenStreetMap.</p>
+    </aside>
+      <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="panel" aria-expanded="false">Слаі</button>
+    <div id="map" role="region" aria-label="Мапа могілак"></div>
+  </div>
+  <script src="vendor/leaflet.js"></script>
+  <script src="vendor/leaflet.markercluster.js"></script>
+  <script src="data.js"></script>
+  <script src="map.js"></script>
+</body>
+</html>

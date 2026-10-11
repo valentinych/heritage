@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Совпадение — Наследие{% endblock %}
+{% block body %}
+<p><a href="/s/{{ space.id }}/clusters/{{ dataset.id }}/matrix">К матрице</a></p>
+<h1>Совпадение</h1>
+{% for person in people %}
+<section class="card stack">
+  <h2 class="wrap">{{ person.name }}</h2>
+  <dl class="facts">
+    <div><dt>Кластер</dt><dd>{{ person.cluster_label }}</dd></div>
+    {% if person.kit %}<div><dt>Номер набора</dt><dd>{{ person.kit }}</dd></div>{% endif %}
+    {% if person.shared_cm is not none %}<div><dt>Общий cM</dt><dd>{{ person.shared_cm }}</dd></div>{% endif %}
+    {% if person.largest_cm is not none %}<div><dt>Крупнейший сегмент</dt><dd>{{ person.largest_cm }}</dd></div>{% endif %}
+    {% if person.segments is not none %}<div><dt>Сегменты</dt><dd>{{ person.segments }}</dd></div>{% endif %}
+    {% if person.icw is not none %}<div><dt>Общие совпадения</dt><dd>{{ person.icw }}</dd></div>{% endif %}
+    {% if person.relationship %}<div><dt>Родство</dt><dd>{{ person.relationship }}</dd></div>{% endif %}
+    {% if person.tree_count is not none %}<div><dt>Людей в дереве</dt><dd>{{ person.tree_count }}</dd></div>{% endif %}
+    {% if person.tree_url %}<div><dt>Дерево</dt><dd><a href="{{ person.tree_url }}">Открыть дерево</a></dd></div>{% endif %}
+    {% if person.note %}<div><dt>Заметка</dt><dd>{{ person.note }}</dd></div>{% endif %}
+  </dl>
+</section>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Города и веси{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/mogilki/vendor/leaflet.css">
+<link rel="stylesheet" href="/mogilki/vendor/leaflet.markercluster.css">
+<link rel="stylesheet" href="/static/vesi.css">
+{% endblock %}
+{% block page_class %} page-vesi{% endblock %}
+{% block body %}
+<h1>Города и веси</h1>
+<p>Населённые пункты Беларуси и соседние. У каждого пункта свои артефакты: кладбища и парафии.</p>
+<form id="find" class="vesi-find" role="search">
+  <label class="field" for="find-query">Населённый пункт
+    <input id="find-query" name="q" type="search" autocomplete="off" enterkeyhint="search">
+  </label>
+</form>
+<p id="find-status" class="help" role="status"></p>
+<ul id="find-results" class="vesi-results"></ul>
+<div id="map" class="vesi-map" role="region" aria-label="Карта населённых пунктов"></div>
+<p class="help">Подложка © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.</p>
+<h2 id="artifact-heading" tabindex="-1">Артефакты</h2>
+<p id="artifact-status" role="status">Выберите населённый пункт на карте или найдите его по названию.</p>
+<ul id="artifacts" class="vesi-artifacts"></ul>
+<section id="unbound" class="vesi-unbound stack" aria-labelledby="unbound-heading">
+  <h2 id="unbound-heading">Без населённого пункта</h2>
+  {% if unbound %}
+  <p role="status">Артефактов без населённого пункта: {{ unbound|length }}.</p>
+  <ul class="vesi-artifacts">
+    {% for artifact in unbound %}
+    <li class="vesi-artifact" data-artifact-id="{{ artifact.id }}">
+      <div class="vesi-artifact-main">
+        {% if artifact.get("kind") == "parish" and artifact.get("url") %}
+        <a href="{{ artifact.url }}" rel="noopener noreferrer">{{ artifact.name }}</a>
+        {% elif artifact.indexed %}
+        <a href="/vesi/{{ artifact.id | urlencode }}">{{ artifact.name }}</a>
+        {% else %}
+        <span>{{ artifact.name }}</span>
+        {% endif %}
+        {% if artifact.get("kind") == "parish" %}
+        <span class="vesi-kind"><span aria-hidden="true">⛪</span><span>парафия</span></span>
+        {% else %}
+        <span class="vesi-kind"><span aria-hidden="true">🪦</span><span>кладбище</span></span>
+        {% endif %}
+      </div>
+      <span class="status">
+        <span class="status-mark" aria-hidden="true">{{ artifact.emoji }}</span>
+        <span>{{ artifact.label }}</span>
+      </span>
+      {% if artifact.get("kind") == "parish" %}
+      {% include "partials/vesi_parish.html" %}
+      {% endif %}
+      {% if not artifact.has_point %}
+      <p class="help">Координат нет.</p>
+      {% elif can_bind %}
+      <form method="post" action="/vesi/bind" class="vesi-bind">
+        <input type="hidden" name="artifact_id" value="{{ artifact.id }}">
+        <label class="field" for="bind-{{ loop.index }}">Населённый пункт, {{ artifact.name }}
+          <select id="bind-{{ loop.index }}" name="settlement_id" required>
+            <option value="">Выберите населённый пункт</option>
+            {% for item in artifact.suggestions %}
+            <option value="{{ item.id }}">{{ item.name }}, {{ item.km }} км</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button class="button-primary" type="submit">Привязать</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p role="status">Все артефакты привязаны к населённым пунктам.</p>
+  {% endif %}
+</section>
+<script src="/mogilki/vendor/leaflet.js"></script>
+<script src="/mogilki/vendor/leaflet.markercluster.js"></script>
+<script src="/static/vesi.js"></script>
+{% endblock %}

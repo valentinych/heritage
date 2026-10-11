@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}ДНК — Наследие{% endblock %}
+{% block body %}
+<h1>ДНК</h1>
+<p class="help">Таблица совпадений ДНК: имя, общий cM и, если есть, крупнейший сегмент. Сырой файл чипа не читается.</p>
+<form method="post" action="/s/{{ space.id }}/dna" enctype="multipart/form-data" class="card stack">
+  <label class="field">Файл CSV или Excel
+    <input type="file" name="file" accept=".csv,.xlsx,.tsv,.txt" required>
+  </label>
+  <button class="button-primary" type="submit">Загрузить таблицу</button>
+</form>
+{% for dataset in datasets %}
+{% include "partials/dataset_card.html" %}
+{% endfor %}
+{% if total == 0 and not datasets %}
+<p>Пока нет таблиц матчей. Загрузите CSV или Excel со списком совпадений ДНК.</p>
+{% elif total == 0 %}
+<p>Пока нет разобранных матчей.</p>
+{% else %}
+<p>Матчей: {{ total }}.{% if max_cm is not none %} Максимум общего cM: {{ max_cm | cm }}.{% endif %}</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Имя</th>
+        <th scope="col" class="num">Общий cM</th>
+        <th scope="col" class="num">Крупнейший сегмент</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in matches %}
+      <tr>
+        <td class="wrap">{{ match.name }}</td>
+        <td class="num">{{ match.shared_cm | cm }}</td>
+        <td class="num">{{ match.largest_segment | cm }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if pager.pages > 1 %}
+<nav class="pager" aria-label="Страницы">
+  {% if pager.prev_href %}<a href="{{ pager.prev_href }}">Предыдущая страница</a>{% endif %}
+  <span>Страница {{ pager.page }} из {{ pager.pages }}</span>
+  {% if pager.next_href %}<a href="{{ pager.next_href }}">Следующая страница</a>{% endif %}
+</nav>
+{% endif %}
+{% endif %}
+{% endblock %}

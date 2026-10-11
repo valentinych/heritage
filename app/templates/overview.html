@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ space.name }} — Наследие{% endblock %}
+{% block body %}
+<h1>{{ space.name }}</h1>
+<ul class="stats">
+  <li><a href="/s/{{ space.id }}/trees"><span>Деревья</span><span class="num">{{ counts.trees }}</span></a></li>
+  <li><a href="/s/{{ space.id }}/dna"><span>ДНК</span><span class="num">{{ counts.matches }}</span></a></li>
+  <li><a href="/s/{{ space.id }}/clusters"><span>Кластеры</span><span class="num">{{ counts.clusters }}</span></a></li>
+  <li><a href="/s/{{ space.id }}/links"><span>На проверке</span><span class="num">{{ counts.proposed }}</span></a></li>
+</ul>
+{% endblock %}

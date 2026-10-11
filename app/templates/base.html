@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Наследие{% endblock %}</title>
+  {% block extra_head %}{% endblock %}
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body{% block body_attrs %}{% endblock %}>
+  <a class="skip" href="#content">К содержанию</a>
+  {% block header %}
+  <header class="topbar">
+    <a class="brand" href="/">Наследие</a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="/mogilki" {% if section == 'mogilki' %}aria-current="page"{% endif %}>Могілкі</a>
+      <a href="/novogrudok" {% if section == 'novogrudok' %}aria-current="page"{% endif %}>ДНК Навагрудка</a>
+      <a href="/vesi" {% if section == 'vesi' %}aria-current="page"{% endif %}>Города и веси</a>
+      <a href="/register" {% if section == 'register' %}aria-current="page"{% endif %}>Регистрация</a>
+    </nav>
+  </header>
+  {% endblock %}
+  <main id="content" class="page{% block page_class %}{% endblock %}">
+    {% for item in flashes %}
+    <p class="flash flash-{{ item.kind }}" {% if item.kind == 'error' %}role="alert"{% else %}role="status"{% endif %}>{{ item.message }}</p>
+    {% endfor %}
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>

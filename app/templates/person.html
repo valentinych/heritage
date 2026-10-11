@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ person.full_name }} — Наследие{% endblock %}
+{% block body %}
+<p><a href="/s/{{ space.id }}/trees/{{ tree.id }}">К дереву {{ tree.filename }}</a></p>
+<h1 class="wrap">{{ person.full_name }}</h1>
+<p>Пол: {{ sex_label }}</p>
+{% if person.birth_date %}<p>Рождение: {{ person.birth_date }}</p>{% endif %}
+{% if person.death_date %}<p>Смерть: {{ person.death_date }}</p>{% endif %}
+
+<section class="stack">
+  <h2>Родители</h2>
+  {% if parent_groups %}
+    {% for group in parent_groups %}
+    <ul>
+      <li>{% if group.father %}<a href="/s/{{ space.id }}/people/{{ group.father.id }}">{{ group.father.full_name }}</a>{% else %}Отец в файле не указан{% endif %}</li>
+      <li>{% if group.mother %}<a href="/s/{{ space.id }}/people/{{ group.mother.id }}">{{ group.mother.full_name }}</a>{% else %}Мать в файле не указана{% endif %}</li>
+    </ul>
+    {% endfor %}
+  {% else %}
+  <p>В файле нет родителей.</p>
+  {% endif %}
+</section>
+
+<section class="stack">
+  <h2>Супруги и дети</h2>
+  {% if spouse_groups %}
+    {% for group in spouse_groups %}
+    <div class="stack">
+      {% if group.spouse %}
+      <p><a href="/s/{{ space.id }}/people/{{ group.spouse.id }}">{{ group.spouse.full_name }}</a></p>
+      {% else %}
+      <p>Пара в файле не указана.</p>
+      {% endif %}
+      {% if group.children %}
+      <ul>
+        {% for child in group.children %}
+        <li><a href="/s/{{ space.id }}/people/{{ child.id }}">{{ child.full_name }}</a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>Детей в этой семье нет.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+  <p>В файле нет супругов и детей.</p>
+  {% endif %}
+</section>
+
+<section class="stack">
+  <h2>Связи с другими деревьями</h2>
+  {% if confirmed_links %}
+  <ul>
+    {% for item in confirmed_links %}
+    <li><a href="/s/{{ space.id }}/people/{{ item.person.id }}">{{ item.person.full_name }}</a> <span class="muted">{{ item.tree.filename }}</span></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Подтверждённых связей нет.</p>
+  {% endif %}
+</section>
+{% endblock %}
